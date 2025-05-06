@@ -6,6 +6,7 @@ use std::{
 use rand::rngs::ThreadRng;
 
 use crate::{
+    input,
     traits::*,
     ui::{draw::*, UI},
     unit::Collectible,
@@ -18,6 +19,7 @@ pub struct Game {
     height: u16,
     width: u16,
     stdout: Stdout,
+    score: u32,
     enemies: Vec<Enemy>,
     n_random_walls: u16,
     walls: Vec<Wall>,
@@ -25,12 +27,14 @@ pub struct Game {
     player: Player,
     ui: UI,
     rng: ThreadRng,
+    update_interval_millis: Duration,
 }
 
 pub struct GameBuilder {
     height: u16,
     width: u16,
     n_random_walls: u16,
+    update_interval: Duration,
     player_builder: PlayerBuilder,
     enemies: Vec<Enemy>,
     walls: Vec<Wall>,
@@ -44,6 +48,7 @@ impl GameBuilder {
             width: 80,
             player_builder: PlayerBuilder::new(),
             n_random_walls: 0,
+            update_interval: Duration::from_millis(50),
             enemies: vec![
                 Enemy::with_speed(0.6),
                 Enemy::with_speed(0.5),
@@ -78,6 +83,11 @@ impl GameBuilder {
         self
     }
 
+    pub fn update_interval(mut self, update_interval: Duration) -> Self {
+        self.update_interval = update_interval;
+        self
+    }
+
     pub fn enemies(mut self, enemies: Vec<Enemy>) -> Self {
         self.enemies = enemies;
         self
@@ -93,13 +103,15 @@ impl GameBuilder {
             height: self.height,
             width: self.width,
             n_random_walls: self.n_random_walls,
+            update_interval_millis: self.update_interval,
             enemies: self.enemies,
             walls: self.walls,
             collectible: Collectible::default(),
-            player: self.player_builder.build(),
+            player: self.player_builder.direction(1.0, 0.0).build(),
             ui: UI::new(),
             rng: rand::thread_rng(),
             stdout: stdout(),
+            score: 0,
         }
     }
 }
@@ -156,6 +168,52 @@ impl Game {
         }
     }
 
+    fn update(&mut self) {
+        // move player if not colliding with a wall
+        let player_next_position = self.player.forward_position();
+        if !self
+            .walls
+            .iter()
+            .any(|wall| wall.position() == player_next_position)
+        {
+            self.player.move_forward();
+        }
+
+        // increase score if player collides with collectible
+        if self.player.position().round().to_u16() == self.collectible.position() {
+            self.score += 1;
+            // move collectible to a new random position
+            self.collectible.set_rand_position(
+                &mut self.rng,
+                1..self.width - 1,
+                1..self.height - 1,
+            );
+            while self
+                .walls
+                .iter()
+                .any(|wall| wall.position() == self.collectible.position())
+            {
+                self.collectible.set_rand_position(
+                    &mut self.rng,
+                    1..self.width - 1,
+                    1..self.height - 1,
+                );
+            }
+        }
+
+        // move enemies
+        self.enemies
+            .iter_mut()
+            .for_each(|enemy| enemy.move_towards_player(&self.player));
+
+        // reduce player health for each enemy collision
+        self.enemies.iter_mut().for_each(|enemy| {
+            if enemy.position().round() == self.player.position().round() {
+                self.player.take_damage(1);
+            }
+        });
+    }
+
     fn draw(&mut self) {
         self.ui.clear();
         let mut buffer: Vec<u8> = Vec::new();
@@ -173,14 +231,23 @@ impl Game {
 
     pub fn run(&mut self) {
         self.init();
+        let mut quit = false;
+        while self.player.is_alive() && !quit {
+            // poll for key events for the duration of the update interval
+            let now = std::time::Instant::now();
+            while let Some(time_remaining) = self.update_interval_millis.checked_sub(now.elapsed())
+            {
+                if let Some(key) = input::poll_key_event(time_remaining) {
+                    input::handle_key_event(key, &mut self.player, &mut quit);
+                }
+            }
 
-        let start_time = Instant::now();
-        while Instant::now() - start_time < Duration::from_secs(3) {
+            self.update();
             self.draw();
-            std::thread::sleep(Duration::from_millis(100))
         }
-
-        self.ui.restore()
+        self.ui.restore();
+        print!("\nGame over!");
+        println!("  Score: {}", self.score);
     }
 }
 

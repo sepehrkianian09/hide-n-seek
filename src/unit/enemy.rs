@@ -2,6 +2,8 @@ use std::fmt::Display;
 
 use crate::{point::Point2d, traits::Position, ui::draw::Draw};
 
+use super::Player;
+
 #[derive(Default)]
 pub struct Enemy {
     speed: f64,
@@ -14,6 +16,12 @@ impl Enemy {
             speed: speed,
             position: Point2d::default(),
         }
+    }
+}
+
+impl Enemy {
+    pub fn move_towards_player(&mut self, player: &Player) {
+        self.position += (player.position() - self.position.clone()).normalize() * self.speed;
     }
 }
 

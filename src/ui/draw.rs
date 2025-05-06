@@ -9,11 +9,11 @@ use num::{traits::NumAssign, NumCast};
 
 // this is only an example, modify it to your needs or remove entirely
 pub trait Draw<T: NumAssign + Copy + NumCast>: Position<T> + Display {
-    fn draw(&self, buffer: &mut impl Write) {
+    fn draw(&self, stdout: &mut impl Write) {
         let position = self.position();
 
         crossterm::queue!(
-            buffer,
+            stdout,
             crossterm::cursor::MoveTo(
                 position
                     .x
