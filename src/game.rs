@@ -128,6 +128,12 @@ impl Game {
     pub fn init(&mut self) {
         self.ui.prepare();
 
+        self.player.set_rand_position(
+            &mut self.rng,
+            1.0..(self.width - 1).into(),
+            1.0..(self.height - 1).into(),
+        );
+
         // surround the game area with walls
         for x in 0..self.width {
             self.walls.push(Wall::new(x, 0));
