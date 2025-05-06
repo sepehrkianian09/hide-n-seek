@@ -1,79 +1,122 @@
 use std::ops::{Add, AddAssign, Mul, Sub};
 
-use num::{traits::NumAssign, ToPrimitive};
+use num::{self, traits::NumAssign, Float, Zero};
 
-#[derive(Debug, Default, Clone, PartialEq)]
-pub struct Point2d<T: NumAssign + Copy> {
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct Point2d<T: NumAssign> {
     pub x: T,
     pub y: T,
 }
 
-impl<T: NumAssign + Copy> Point2d<T> {
-    pub fn new(x: T, y: T) -> Self {
-        Self { x, y }
+impl<T: NumAssign + Copy> Zero for Point2d<T> {
+    fn zero() -> Self {
+        Self {
+            x: T::zero(),
+            y: T::zero(),
+        }
     }
-}
 
-impl Point2d<f64> {
-    pub fn normalize(&self) -> Self {
-        let Self { x, y } = self;
-        let magnitude = (*x * *x + *y * *y).sqrt();
-        Self { x: x / magnitude, y: y / magnitude }
+    fn set_zero(&mut self) {
+        self.x.set_zero();
+        self.y.set_zero();
+    }
+
+    fn is_zero(&self) -> bool {
+        self.x == T::zero() && self.y == T::zero()
     }
 }
 
 impl<T: NumAssign + Copy> Add for Point2d<T> {
     type Output = Self;
 
-    fn add(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x + rhs.x,
-            y: self.y + rhs.y,
-        }
-    }
-}
-
-impl<T: NumAssign + Copy> Mul<T> for Point2d<T> {
-    type Output = Self;
-
-    fn mul(self, rhs: T) -> Self::Output {
-        Self {
-            x: self.x * rhs,
-            y: self.y * rhs,
-        }
-    }
-}
-
-impl<T: NumAssign + Copy> AddAssign for Point2d<T> {
-    fn add_assign(&mut self, rhs: Self) {
-        self.x += rhs.x;
-        self.y += rhs.y;
+    fn add(self, other: Self) -> Self {
+        Self::new(self.x + other.x, self.y + other.y)
     }
 }
 
 impl<T: NumAssign + Copy> Sub for Point2d<T> {
     type Output = Self;
 
-    fn sub(self, rhs: Self) -> Self::Output {
-        Self {
-            x: self.x - rhs.x,
-            y: self.y - rhs.y,
+    fn sub(self, other: Self) -> Self {
+        Self::new(self.x - other.x, self.y - other.y)
+    }
+}
+
+impl<T: NumAssign + Copy> AddAssign for Point2d<T> {
+    fn add_assign(&mut self, other: Self) {
+        self.x = self.x + other.x;
+        self.y = self.y + other.y;
+    }
+}
+
+impl<T: NumAssign + Copy> Mul<T> for Point2d<T> {
+    type Output = Self;
+
+    fn mul(self, multiplier: T) -> Self {
+        Self::new(self.x * multiplier, self.y * multiplier)
+    }
+}
+
+impl<T: NumAssign + Copy> Point2d<T> {
+    pub fn new(x: T, y: T) -> Self {
+        Self { x, y }
+    }
+
+    pub fn distance(&self, other: &Self) -> T
+    where
+        T: Float,
+    {
+        let dx = self.x - other.x;
+        let dy = self.y - other.y;
+        (dx * dx + dy * dy).sqrt()
+    }
+
+    fn rotate_clockwise(&mut self, angle: T) -> Self
+    where
+        T: Float,
+    {
+        let cos = angle.cos();
+        let sin = angle.sin();
+
+        let x = self.x * cos + self.y * sin;
+        let y = self.x * -sin + self.y * cos;
+        Point2d::new(x, y)
+    }
+
+    pub fn rotate(&mut self, angle: T) -> Self
+    where
+        T: Float,
+    {
+        let rotated = self.rotate_clockwise(angle);
+        Point2d::new(rotated.x, rotated.y)
+    }
+    pub fn normalize(&self) -> Self
+
+    where
+        T: Float,
+    {
+        let zero_point = Self::zero();
+        let length = self.distance(&zero_point);
+        if length == T::zero() {
+            return Point2d::<T>::zero();
         }
+        Point2d::new(self.x / length, self.y / length)
+    }
+
+    pub fn round(&self) -> Self
+    where
+        T: Float,
+    {
+        Point2d::new(self.x.round(), self.y.round())
     }
 }
 
 impl Point2d<f64> {
-    pub fn to_u16(&self) -> Point2d<u16> {
-        Point2d {
-            x: self.x.to_u16().unwrap(),
-            y: self.y.to_u16().unwrap(),
-        }
+    pub fn to_u16(self) -> Point2d<u16> {
+        Point2d::new(self.x as u16, self.y as u16)
     }
 
-    pub fn round(&self) -> Point2d<f64> {
-        Point2d {
-            x: self.x.round(),
-            y: self.y.round(),
-        }
+    pub fn to_i16(self) -> Point2d<i16> {
+        Point2d::new(self.x as i16, self.y as i16)
     }
 }

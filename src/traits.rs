@@ -7,7 +7,6 @@ use rand::{
 };
 use std::ops::Range;
 
-// this is only an example, modify it to your needs or remove entirely
 use crate::point::Point2d;
 
 pub trait Position<T: NumAssign + Copy> {

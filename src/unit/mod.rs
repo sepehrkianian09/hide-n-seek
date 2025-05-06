@@ -1,12 +1,10 @@
 mod collectible;
-pub use collectible::Collectible;
-
 mod enemy;
-pub use enemy::Enemy;
-
 mod player;
+mod wall;
+
+pub use collectible::Collectible;
+pub use enemy::Enemy;
 pub use player::Player;
 pub use player::PlayerBuilder;
-
-mod wall;
 pub use wall::Wall;

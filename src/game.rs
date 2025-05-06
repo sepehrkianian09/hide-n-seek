@@ -6,6 +6,7 @@ use std::{
 use rand::rngs::ThreadRng;
 
 use crate::{
+    hud::Hud,
     input,
     traits::*,
     ui::{draw::*, UI},
@@ -107,7 +108,7 @@ impl GameBuilder {
             enemies: self.enemies,
             walls: self.walls,
             collectible: Collectible::default(),
-            player: self.player_builder.direction(1.0, 0.0).build(),
+            player: self.player_builder.build(),
             ui: UI::new(),
             rng: rand::thread_rng(),
             stdout: stdout(),
@@ -127,12 +128,6 @@ impl Game {
 
     pub fn init(&mut self) {
         self.ui.prepare();
-
-        self.player.set_rand_position(
-            &mut self.rng,
-            1.0..(self.width - 1).into(),
-            1.0..(self.height - 1).into(),
-        );
 
         // surround the game area with walls
         for x in 0..self.width {
@@ -229,6 +224,7 @@ impl Game {
             .iter()
             .for_each(|enemy| enemy.draw(&mut buffer));
         self.collectible.draw(&mut buffer);
+        Hud::new(self.score, &self.player, self.height + 2).draw(&mut buffer);
         self.stdout
             .write_all(&buffer)
             .expect("failed to write to stdout");
