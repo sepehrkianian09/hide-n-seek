@@ -1,4 +1,6 @@
-use crate::{point::Point2d, traits::Position};
+use std::fmt::Display;
+
+use crate::{point::Point2d, traits::Position, ui::draw::Draw};
 
 #[derive(Default)]
 pub struct Player {
@@ -15,8 +17,7 @@ impl Player {
     pub fn take_damage(&mut self, damage: u8) {
         if damage < self.health {
             self.health -= damage;
-        }
-        else {
+        } else {
             self.health = 0;
         }
     }
@@ -39,6 +40,18 @@ impl Position<f64> for Player {
         self.position = position;
     }
 }
+
+impl Display for Player {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let green = "\x1b[92m";
+        let ufo = "\u{1F6F8}";
+        let reset = "\x1b[0m";
+
+        write!(f, "{}{}{}", green, ufo, reset)
+    }
+}
+
+impl Draw<f64> for Player {}
 
 pub struct PlayerBuilder {
     speed: f64,

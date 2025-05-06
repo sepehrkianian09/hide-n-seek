@@ -1,4 +1,6 @@
-use crate::{point::Point2d, traits::Position};
+use std::fmt::Display;
+
+use crate::{point::Point2d, traits::Position, ui::draw::Draw};
 
 #[derive(Default)]
 pub struct Wall {
@@ -22,3 +24,15 @@ impl Position<u16> for Wall {
         self.position = position;
     }
 }
+
+impl Display for Wall {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let red = "\x1b[31m";
+        let rectangle = "█";
+        let reset = "\x1b[0m";
+
+        write!(f, "{}{}{}", red, rectangle, reset)
+    }
+}
+
+impl Draw<u16> for Wall {}
