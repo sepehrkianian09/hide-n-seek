@@ -79,10 +79,12 @@ fn sample_serde_io() -> Result<(), Box<dyn Error>> {
         age: 30,
     };
 
-    write_json(&person, "tests/serde_person.json")?;
+    let file_name = "tests/serde_person.json";
+
+    write_json(&person, file_name)?;
     println!("JSON written to person.json");
 
-    let read_person: Person = read_json("tests/serde_person.json")?;
+    let read_person: Person = read_json(file_name)?;
     println!("Deserialized from file: {:?}", person);
 
     assert_eq!(
