@@ -1,19 +1,12 @@
 use std::{
     io::{stdout, Stdout, Write},
-    time::{Duration, Instant},
+    time::Duration,
 };
 
 use rand::rngs::ThreadRng;
 
 use crate::{
-    hud::Hud,
-    input,
-    traits::*,
-    ui::{draw::*, UI},
-    unit::Collectible,
-    unit::Enemy,
-    unit::Wall,
-    unit::{Player, PlayerBuilder},
+    hud::Hud, input, point::Point2d, traits::*, ui::{draw::*, UI}, unit::{Collectible, Enemy, Player, PlayerBuilder, Wall}
 };
 
 pub struct Game {
@@ -224,7 +217,7 @@ impl Game {
             .iter()
             .for_each(|enemy| enemy.draw(&mut buffer));
         self.collectible.draw(&mut buffer);
-        Hud::new(self.score, &self.player, self.height + 2).draw(&mut buffer);
+        Hud::new(self.score, &self.player, Point2d::new(self.width / 2 - 10, self.height + 2)).draw(&mut buffer);
         self.stdout
             .write_all(&buffer)
             .expect("failed to write to stdout");
