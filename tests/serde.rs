@@ -45,31 +45,41 @@ use std::fs::File;
 use std::io::Read;
 use std::io::Write;
 
-fn write_json<T: Serialize>(a_struct: &T, file_name: &str) -> Result<(), Box<dyn Error>> {
-    // Serialize to JSON string
-    let json_string = serde_json::to_string_pretty(a_struct)?; // Use `to_string` for compact output
-
-    // Create or overwrite the file
-    let mut file = File::create(file_name)?;
-
-    // Write the JSON string to the file
-    file.write_all(json_string.as_bytes())?;
-
-    Ok(())
+struct JsonIo<'a> {
+    file_name: &'a str,
 }
 
-fn read_json<T: for<'a> Deserialize<'a>>(file_name: &str) -> Result<T, Box<dyn Error>> {
-    // Open the file
-    let mut file = File::open(file_name)?;
+impl<'a> JsonIo<'a> {
+    pub fn new(file_name: &'a str) -> Self {
+        Self { file_name }
+    }
 
-    // Read the file contents into a string
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
+    pub fn write_json<T: Serialize>(&self, a_struct: &T) -> Result<(), Box<dyn Error>> {
+        // Serialize to JSON string
+        let json_string = serde_json::to_string_pretty(a_struct)?; // Use `to_string` for compact output
+    
+        // Create or overwrite the file
+        let mut file = File::create(self.file_name)?;
+    
+        // Write the JSON string to the file
+        file.write_all(json_string.as_bytes())?;
+    
+        Ok(())
+    }
 
-    let deserialized_json = serde_json::from_str::<T>(&contents)?;
-    // Deserialize the JSON string into a Person struct
-
-    Ok(deserialized_json)
+    fn read_json<T: for<'b> Deserialize<'b>>(&self) -> Result<T, Box<dyn Error>> {
+        // Open the file
+        let mut file = File::open(self.file_name)?;
+    
+        // Read the file contents into a string
+        let mut contents = String::new();
+        file.read_to_string(&mut contents)?;
+    
+        let deserialized_json = serde_json::from_str::<T>(&contents)?;
+        // Deserialize the JSON string into a Person struct
+    
+        Ok(deserialized_json)
+    }
 }
 
 #[test]
@@ -79,18 +89,15 @@ fn sample_serde_io() -> Result<(), Box<dyn Error>> {
         age: 30,
     };
 
-    let file_name = "tests/serde_person.json";
+    let json_io = JsonIo::new("tests/serde_person.json");
 
-    write_json(&person, file_name)?;
+    json_io.write_json(&person)?;
     println!("JSON written to person.json");
 
-    let read_person: Person = read_json(file_name)?;
+    let read_person: Person = json_io.read_json()?;
     println!("Deserialized from file: {:?}", person);
 
-    assert_eq!(
-        person,
-        read_person,
-    );
+    assert_eq!(person, read_person,);
 
     Ok(())
 }
