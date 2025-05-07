@@ -73,30 +73,21 @@ fn read_json<T: for<'a> Deserialize<'a>>(file_name: &str) -> Result<T, Box<dyn E
 }
 
 #[test]
-fn sample_serde_write() -> Result<(), Box<dyn Error>> {
+fn sample_serde_io() -> Result<(), Box<dyn Error>> {
     let person = Person {
         name: "Alice".to_string(),
         age: 30,
     };
 
     write_json(&person, "tests/serde_person.json")?;
-
     println!("JSON written to person.json");
 
-    Ok(())
-}
-
-#[test]
-fn sample_serde_read() -> Result<(), Box<dyn Error>> {
-    let person: Person = read_json("tests/serde_person.json")?;
-
+    let read_person: Person = read_json("tests/serde_person.json")?;
     println!("Deserialized from file: {:?}", person);
+
     assert_eq!(
         person,
-        Person {
-            name: "Alice".to_string(),
-            age: 30,
-        }
+        read_person,
     );
 
     Ok(())
