@@ -17,7 +17,7 @@ impl<'a> Hud<'a> {
     }
 
     pub fn text(&self) -> String {
-        format!("Player: {}\nScore: {}", self.player.to_string(), self.score)
+        format!("Health: {}, Score: {}", self.player.health(), self.score)
     }
 }
 
