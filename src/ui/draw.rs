@@ -43,5 +43,5 @@ impl_display!(for Wall: '▓'.magenta());
 impl Draw<f64> for Enemy {}
 impl_display!(for Enemy: '⁂'.dark_green());
 
-impl Draw<u16> for Hud<'_> {}
-impl_display!(for Hud<'_>: method text);
+impl Draw<u16> for Hud {}
+impl_display!(for Hud: method text);

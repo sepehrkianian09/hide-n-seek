@@ -1711,5 +1711,13 @@
   "update_interval_millis": {
     "secs": 0,
     "nanos": 280000000
+  },
+  "hud": {
+    "score": 0,
+    "health": 10,
+    "position": {
+      "x": 30,
+      "y": 42
+    }
   }
 }

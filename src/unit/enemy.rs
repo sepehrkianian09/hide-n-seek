@@ -17,8 +17,8 @@ impl Enemy {
         }
     }
 
-    pub fn move_towards_player(&mut self, player: &Player, since_last_time: &Duration) {
-        let direction = player.position().round() - self.position().round();
+    pub fn move_towards_player(&mut self, player_position: Point2d<f64>, since_last_time: &Duration) {
+        let direction = player_position.round() - self.position().round();
 
         self.position += direction.normalize() * (self.speed * since_last_time.as_secs_f64());
     }

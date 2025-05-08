@@ -2,7 +2,7 @@ use std::{io::stdout, time::Duration};
 
 use rand::RngCore;
 
-use crate::{ui::UI, unit::{Collectible, Enemy, PlayerBuilder, Wall}};
+use crate::{hud::Hud, point::Point2d, ui::UI, unit::{Collectible, Enemy, PlayerBuilder, Wall}};
 
 use super::Game;
 
@@ -91,11 +91,12 @@ impl GameBuilder {
             enemies: self.enemies,
             walls: self.walls,
             collectible: Collectible::default(),
-            player: self.player_builder.build(),
+            player: self.player_builder.build().into(),
             ui: UI::new(),
             rng: self.rng,
             stdout: stdout(),
             score: 0,
+            hud: Hud::new(Point2d::new(self.width / 2 - 10, self.height + 2)),
         }
     }
 }

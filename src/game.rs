@@ -1,18 +1,26 @@
-mod tests;
 mod builder;
+mod tests;
 
 use std::{
-    fmt::Debug, io::{stdout, Stdout, Write}, time::Duration
+    cell::RefCell,
+    fmt::Debug,
+    io::{stdout, Stdout, Write},
+    time::Duration,
 };
 
 use builder::GameBuilder;
 use derivative::Derivative;
 use rand::{rngs::ThreadRng, Rng, RngCore};
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 use crate::{
-    hud::Hud, input, point::Point2d, traits::*, ui::{draw::*, UI}, unit::{Collectible, Enemy, Player, PlayerBuilder, Wall}
+    hud::Hud,
+    input,
+    point::Point2d,
+    traits::*,
+    ui::{draw::*, UI},
+    unit::{Collectible, Enemy, Player, PlayerBuilder, Wall},
 };
 
 fn rng_new() -> Box<dyn RngCore> {
@@ -24,25 +32,34 @@ fn rng_new() -> Box<dyn RngCore> {
 pub struct Game {
     height: u16,
     width: u16,
-    #[serde(skip, default="stdout")]
+    #[serde(skip, default = "stdout")]
     stdout: Stdout,
     score: u32,
     enemies: Vec<Enemy>,
     n_random_walls: u16,
     walls: Vec<Wall>,
     collectible: Collectible,
-    player: Player,
-    #[serde(skip, default="crate::ui::UI::new")]
+    player: RefCell<Player>,
+    #[serde(skip, default = "crate::ui::UI::new")]
     ui: UI,
-    #[serde(skip, default="rng_new")]
+    #[serde(skip, default = "rng_new")]
     #[derivative(Debug = "ignore")]
     rng: Box<dyn RngCore>,
     update_interval_millis: Duration,
+    hud: Hud,
 }
 
 impl PartialEq for Game {
     fn eq(&self, other: &Self) -> bool {
-        self.height == other.height && self.width == other.width && self.score == other.score && self.enemies == other.enemies && self.n_random_walls == other.n_random_walls && self.walls == other.walls && self.collectible == other.collectible && self.player == other.player && self.update_interval_millis == other.update_interval_millis
+        self.height == other.height
+            && self.width == other.width
+            && self.score == other.score
+            && self.enemies == other.enemies
+            && self.n_random_walls == other.n_random_walls
+            && self.walls == other.walls
+            && self.collectible == other.collectible
+            && self.player == other.player
+            && self.update_interval_millis == other.update_interval_millis
     }
 }
 
@@ -98,23 +115,15 @@ impl Game {
         }
     }
 
-    fn do_walls_collide(&self, position: Point2d<u16>) -> bool {
-        self
-            .walls
-            .iter()
-            .any(|wall| wall.position() == position)
+    pub fn do_walls_collide(&self, position: Point2d<u16>) -> bool {
+        self.walls.iter().any(|wall| wall.position() == position)
     }
 
     fn update(&mut self, since_last_time: Duration) {
-        // move player if not colliding with a wall
-        let player_next_position = self.player.forward_position();
-        if !self.do_walls_collide(player_next_position)
-        {
-            self.player.move_forward(&since_last_time);
-        }
+        self.player.borrow_mut().update(self, &since_last_time);
 
         // increase score if player collides with collectible
-        if self.player.position().round().to_u16() == self.collectible.position() {
+        if self.player.borrow().position().round().to_u16() == self.collectible.position() {
             self.score += 1;
             // move collectible to a new random position
             self.collectible.set_rand_position(
@@ -122,8 +131,7 @@ impl Game {
                 1..self.width - 1,
                 1..self.height - 1,
             );
-            while self.do_walls_collide(self.collectible.position())
-            {
+            while self.do_walls_collide(self.collectible.position()) {
                 self.collectible.set_rand_position(
                     &mut self.rng,
                     1..self.width - 1,
@@ -133,28 +141,30 @@ impl Game {
         }
 
         // move enemies
-        self.enemies
-            .iter_mut()
-            .for_each(|enemy: &mut Enemy| enemy.move_towards_player(&self.player, &since_last_time));
+        self.enemies.iter_mut().for_each(|enemy: &mut Enemy| {
+            enemy.move_towards_player(self.player.borrow().position(), &since_last_time)
+        });
 
         // reduce player health for each enemy collision
         self.enemies.iter_mut().for_each(|enemy| {
-            if enemy.position().round() == self.player.position().round() {
-                self.player.take_damage(1);
+            if enemy.position().round() == self.player.borrow().position().round() {
+                self.player.borrow_mut().take_damage(1);
             }
         });
+
+        self.hud.set(self.score, self.player.borrow().health());
     }
 
     fn draw(&mut self) {
         self.ui.clear();
         let mut buffer: Vec<u8> = Vec::new();
         self.walls.iter().for_each(|wall| wall.draw(&mut buffer));
-        self.player.draw(&mut buffer);
+        self.player.borrow().draw(&mut buffer);
         self.enemies
             .iter()
             .for_each(|enemy| enemy.draw(&mut buffer));
         self.collectible.draw(&mut buffer);
-        Hud::new(self.score, &self.player, Point2d::new(self.width / 2 - 10, self.height + 2)).draw(&mut buffer);
+        self.hud.draw(&mut buffer);
         self.stdout
             .write_all(&buffer)
             .expect("failed to write to stdout");
@@ -164,13 +174,13 @@ impl Game {
     pub fn run(&mut self) {
         self.init();
         let mut quit = false;
-        while self.player.is_alive() && !quit {
+        while self.player.borrow().is_alive() && !quit {
             // poll for key events for the duration of the update interval
             let now = std::time::Instant::now();
             while let Some(time_remaining) = self.update_interval_millis.checked_sub(now.elapsed())
             {
                 if let Some(key) = input::poll_key_event(time_remaining) {
-                    input::handle_key_event(key, &mut self.player, &mut quit);
+                    input::handle_key_event(key, &mut self.player.borrow_mut(), &mut quit);
                 }
             }
 
