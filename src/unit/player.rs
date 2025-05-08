@@ -1,6 +1,6 @@
 use std::{
     f64::consts::PI,
-    fmt::{Display, Formatter},
+    fmt::{Display, Formatter}, time::Duration,
 };
 
 use serde::{Deserialize, Serialize};
@@ -38,8 +38,8 @@ impl Player {
             .to_u16()
     }
 
-    pub fn move_forward(&mut self) {
-        self.position += self.direction * self.speed;
+    pub fn move_forward(&mut self, since_last_time: &Duration) {
+        self.position += self.direction * (self.speed * since_last_time.as_secs_f64());
     }
 
     pub fn is_alive(&self) -> bool {

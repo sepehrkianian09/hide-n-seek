@@ -98,7 +98,7 @@ impl Game {
         }
     }
 
-    fn update(&mut self) {
+    fn update(&mut self, since_last_time: Duration) {
         // move player if not colliding with a wall
         let player_next_position = self.player.forward_position();
         if !self
@@ -106,7 +106,7 @@ impl Game {
             .iter()
             .any(|wall| wall.position() == player_next_position)
         {
-            self.player.move_forward();
+            self.player.move_forward(&since_last_time);
         }
 
         // increase score if player collides with collectible
@@ -134,7 +134,7 @@ impl Game {
         // move enemies
         self.enemies
             .iter_mut()
-            .for_each(|enemy| enemy.move_towards_player(&self.player));
+            .for_each(|enemy: &mut Enemy| enemy.move_towards_player(&self.player, &since_last_time));
 
         // reduce player health for each enemy collision
         self.enemies.iter_mut().for_each(|enemy| {
@@ -173,7 +173,7 @@ impl Game {
                 }
             }
 
-            self.update();
+            self.update(self.update_interval_millis.clone());
             self.draw();
         }
         self.ui.restore();

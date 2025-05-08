@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use crate::unit::Player;
 use crate::{point::Point2d, traits::Position};
 
@@ -15,10 +17,10 @@ impl Enemy {
         }
     }
 
-    pub fn move_towards_player(&mut self, player: &Player) {
+    pub fn move_towards_player(&mut self, player: &Player, since_last_time: &Duration) {
         let direction = player.position().round() - self.position().round();
 
-        self.position += direction.normalize() * self.speed;
+        self.position += direction.normalize() * (self.speed * since_last_time.as_secs_f64());
     }
 }
 
