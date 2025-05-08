@@ -98,13 +98,17 @@ impl Game {
         }
     }
 
+    fn do_walls_collide(&self, position: Point2d<u16>) -> bool {
+        self
+            .walls
+            .iter()
+            .any(|wall| wall.position() == position)
+    }
+
     fn update(&mut self, since_last_time: Duration) {
         // move player if not colliding with a wall
         let player_next_position = self.player.forward_position();
-        if !self
-            .walls
-            .iter()
-            .any(|wall| wall.position() == player_next_position)
+        if !self.do_walls_collide(player_next_position)
         {
             self.player.move_forward(&since_last_time);
         }
@@ -118,10 +122,7 @@ impl Game {
                 1..self.width - 1,
                 1..self.height - 1,
             );
-            while self
-                .walls
-                .iter()
-                .any(|wall| wall.position() == self.collectible.position())
+            while self.do_walls_collide(self.collectible.position())
             {
                 self.collectible.set_rand_position(
                     &mut self.rng,
