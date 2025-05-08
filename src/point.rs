@@ -2,7 +2,7 @@ use std::ops::{Add, AddAssign, Mul, Sub};
 
 use num::{self, traits::NumAssign, Float, Zero};
 
-#[derive(Debug, Clone, Copy, PartialEq, Default)]
+#[derive(Debug, Clone, Copy, Default, serde::Deserialize, serde::Serialize)]
 pub struct Point2d<T: NumAssign> {
     pub x: T,
     pub y: T,
@@ -118,5 +118,18 @@ impl Point2d<f64> {
 
     pub fn to_i16(self) -> Point2d<i16> {
         Point2d::new(self.x as i16, self.y as i16)
+    }
+}
+
+impl PartialEq for Point2d<u16> {
+    fn eq(&self, other: &Self) -> bool {
+        self.x == other.x && self.y == other.y
+    }
+}
+
+
+impl PartialEq for Point2d<f64> {
+    fn eq(&self, other: &Self) -> bool {
+        self.x.round() == other.x.round() && self.y.round() == other.y.round()
     }
 }

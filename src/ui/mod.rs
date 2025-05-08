@@ -9,6 +9,7 @@ use crossterm::{
     terminal::{disable_raw_mode, enable_raw_mode, Clear, ClearType},
 };
 
+#[derive(Debug)]
 pub struct UI {
     stdout: Stdout,
 }

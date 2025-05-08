@@ -42,8 +42,7 @@ fn sample_serde_non_equals() {
 }
 
 use std::error::Error;
-mod common;
-use common::JsonIo;
+use application::common::JsonIo;
 
 #[test]
 fn sample_serde_io() -> Result<(), Box<dyn Error>> {

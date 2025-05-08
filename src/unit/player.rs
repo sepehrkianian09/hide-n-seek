@@ -3,9 +3,11 @@ use std::{
     fmt::{Display, Formatter},
 };
 
+use serde::{Deserialize, Serialize};
+
 use crate::{point::Point2d, traits::Position};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct Player {
     position: Point2d<f64>,
     direction: Point2d<f64>,

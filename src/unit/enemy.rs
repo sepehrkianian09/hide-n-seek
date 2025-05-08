@@ -1,7 +1,7 @@
 use crate::unit::Player;
 use crate::{point::Point2d, traits::Position};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, serde::Serialize, serde::Deserialize, PartialEq)]
 pub struct Enemy {
     position: Point2d<f64>,
     speed: f64,

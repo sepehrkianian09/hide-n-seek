@@ -1,0 +1,94 @@
+{
+  "height": 40,
+  "width": 80,
+  "score": 0,
+  "enemies": [
+    {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "speed": 0.05
+    },
+    {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "speed": 0.1
+    },
+    {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "speed": 0.15000000000000002
+    },
+    {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "speed": 0.2
+    },
+    {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "speed": 0.25
+    },
+    {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "speed": 0.30000000000000004
+    },
+    {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "speed": 0.35000000000000003
+    },
+    {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "speed": 0.4
+    },
+    {
+      "position": {
+        "x": 0.0,
+        "y": 0.0
+      },
+      "speed": 0.45
+    }
+  ],
+  "n_random_walls": 30,
+  "walls": [],
+  "collectible": {
+    "position": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  "player": {
+    "position": {
+      "x": 1.0,
+      "y": 1.0
+    },
+    "direction": {
+      "x": 1.0,
+      "y": 0.0
+    },
+    "speed": 0.5,
+    "health": 10
+  },
+  "update_interval_millis": {
+    "secs": 0,
+    "nanos": 280000000
+  }
+}

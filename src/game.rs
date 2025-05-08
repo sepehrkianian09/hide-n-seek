@@ -1,17 +1,20 @@
+mod tests;
+
 use std::{
-    io::{stdout, Stdout, Write},
-    time::Duration,
+    fmt::Debug, io::{stdout, Stdout, Write}, time::Duration
 };
 
-use rand::rngs::ThreadRng;
+use rand::{rngs::ThreadRng, Rng};
 
 use crate::{
     hud::Hud, input, point::Point2d, traits::*, ui::{draw::*, UI}, unit::{Collectible, Enemy, Player, PlayerBuilder, Wall}
 };
 
+#[derive(Debug, serde::Serialize, serde::Deserialize)]
 pub struct Game {
     height: u16,
     width: u16,
+    #[serde(skip, default="stdout")]
     stdout: Stdout,
     score: u32,
     enemies: Vec<Enemy>,
@@ -19,9 +22,17 @@ pub struct Game {
     walls: Vec<Wall>,
     collectible: Collectible,
     player: Player,
+    #[serde(skip, default="crate::ui::UI::new")]
     ui: UI,
+    #[serde(skip)]
     rng: ThreadRng,
     update_interval_millis: Duration,
+}
+
+impl PartialEq for Game {
+    fn eq(&self, other: &Self) -> bool {
+        self.height == other.height && self.width == other.width && self.score == other.score && self.enemies == other.enemies && self.n_random_walls == other.n_random_walls && self.walls == other.walls && self.collectible == other.collectible && self.player == other.player && self.update_interval_millis == other.update_interval_millis
+    }
 }
 
 pub struct GameBuilder {
@@ -32,6 +43,7 @@ pub struct GameBuilder {
     player_builder: PlayerBuilder,
     enemies: Vec<Enemy>,
     walls: Vec<Wall>,
+    rng: ThreadRng,
 }
 
 impl GameBuilder {
@@ -49,6 +61,7 @@ impl GameBuilder {
                 Enemy::with_speed(0.4),
             ],
             walls: vec![],
+            rng: rand::thread_rng(),
         }
     }
 
@@ -92,6 +105,11 @@ impl GameBuilder {
         self
     }
 
+    pub fn rng(mut self, rng: ThreadRng,) -> Self {
+        self.rng = rng;
+        self
+    }
+
     pub fn build(self) -> Game {
         Game {
             height: self.height,
@@ -103,7 +121,7 @@ impl GameBuilder {
             collectible: Collectible::default(),
             player: self.player_builder.build(),
             ui: UI::new(),
-            rng: rand::thread_rng(),
+            rng: self.rng,
             stdout: stdout(),
             score: 0,
         }

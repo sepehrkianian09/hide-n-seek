@@ -1,6 +1,6 @@
 use crate::{point::Point2d, traits::Position};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, serde::Deserialize, serde::Serialize, PartialEq)]
 pub struct Wall {
     position: Point2d<u16>,
 }
