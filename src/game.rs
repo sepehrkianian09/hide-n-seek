@@ -4,13 +4,21 @@ use std::{
     fmt::Debug, io::{stdout, Stdout, Write}, time::Duration
 };
 
-use rand::{rngs::ThreadRng, Rng};
+use derivative::Derivative;
+use rand::{rngs::ThreadRng, Rng, RngCore};
+
+use serde::{Serialize, Deserialize};
 
 use crate::{
     hud::Hud, input, point::Point2d, traits::*, ui::{draw::*, UI}, unit::{Collectible, Enemy, Player, PlayerBuilder, Wall}
 };
 
-#[derive(Debug, serde::Serialize, serde::Deserialize)]
+fn rng_new() -> Box<dyn RngCore> {
+    Box::new(rand::thread_rng())
+}
+
+#[derive(Derivative, Serialize, Deserialize)]
+#[derivative(Debug)]
 pub struct Game {
     height: u16,
     width: u16,
@@ -24,8 +32,9 @@ pub struct Game {
     player: Player,
     #[serde(skip, default="crate::ui::UI::new")]
     ui: UI,
-    #[serde(skip)]
-    rng: ThreadRng,
+    #[serde(skip, default="rng_new")]
+    #[derivative(Debug = "ignore")]
+    rng: Box<dyn RngCore>,
     update_interval_millis: Duration,
 }
 
@@ -43,7 +52,7 @@ pub struct GameBuilder {
     player_builder: PlayerBuilder,
     enemies: Vec<Enemy>,
     walls: Vec<Wall>,
-    rng: ThreadRng,
+    rng: Box<dyn RngCore>,
 }
 
 impl GameBuilder {
@@ -61,7 +70,7 @@ impl GameBuilder {
                 Enemy::with_speed(0.4),
             ],
             walls: vec![],
-            rng: rand::thread_rng(),
+            rng: Box::new(rand::thread_rng()),
         }
     }
 
@@ -105,7 +114,7 @@ impl GameBuilder {
         self
     }
 
-    pub fn rng(mut self, rng: ThreadRng,) -> Self {
+    pub fn rng(mut self, rng: Box<dyn RngCore>,) -> Self {
         self.rng = rng;
         self
     }
