@@ -109,17 +109,7 @@ impl Game {
         });
 
         // randomize collectible position
-        while self
-            .walls
-            .iter()
-            .any(|wall| wall.position() == self.collectible.borrow().position())
-        {
-            self.collectible.borrow_mut().set_rand_position(
-                &mut self.rng.borrow_mut(),
-                1..self.width - 1,
-                1..self.height - 1,
-            );
-        }
+        self.collectible.borrow_mut().randomize_position(self);
     }
 
     pub fn do_walls_collide(&self, position: Point2d<u16>) -> bool {

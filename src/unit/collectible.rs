@@ -25,17 +25,22 @@ impl Collectible {
         self.score
     }
 
+    pub fn randomize_position(&mut self, game: &Game) {
+        game.randomize_position_u16(self);
+
+        while game.do_walls_collide(self.position()) {
+            game.randomize_position_u16(self);
+        }
+    }
+
     pub fn update(&mut self, game: &Game, since_last_time: &Duration) {
         let _ = since_last_time;
         // increase score if player collides with collectible
         if game.player_position().round().to_u16() == self.position() {
             self.score += 1;
+            
             // move collectible to a new random position
-            game.randomize_position_u16(self);
-
-            while game.do_walls_collide(self.position()) {
-                game.randomize_position_u16(self);
-            }
+            self.randomize_position(game);
         }
     }
 }
