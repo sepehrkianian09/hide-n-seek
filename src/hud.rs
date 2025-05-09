@@ -1,5 +1,6 @@
 use serde::{Deserialize, Serialize};
 
+use crate::traits::UpdatableByTimeFrame;
 use crate::{point::Point2d, traits::Position};
 
 use crate::unit::Player;
@@ -13,7 +14,11 @@ pub struct Hud {
 
 impl Hud {
     pub fn new(position: Point2d<u16>) -> Self {
-        Self { score: 0, health: 0, position }
+        Self {
+            score: 0,
+            health: 0,
+            position,
+        }
     }
 
     pub fn text(&self) -> String {
@@ -33,5 +38,12 @@ impl Position<u16> for Hud {
 
     fn set_position(&mut self, position: crate::point::Point2d<u16>) {
         self.position = position;
+    }
+}
+
+impl UpdatableByTimeFrame for Hud {
+    fn update(&mut self, game: &crate::game::Game, since_last_time: &std::time::Duration) {
+        let _ = since_last_time;
+        self.set(game.player_score(), game.player_health());
     }
 }

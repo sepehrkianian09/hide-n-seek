@@ -46,7 +46,7 @@ pub struct Game {
     #[derivative(Debug = "ignore")]
     rng: RefCell<Box<dyn RngCore>>,
     update_interval_millis: Duration,
-    hud: Hud,
+    hud: RefCell<Hud>,
 }
 
 impl PartialEq for Game {
@@ -71,8 +71,12 @@ impl Game {
         GameBuilder::new()
     }
 
-    pub fn score(&self) -> u32 {
+    pub fn player_score(&self) -> u32 {
         self.collectible.borrow().score()
+    }
+    
+    pub fn player_health(&self) -> u8 {
+        self.player.borrow().health()
     }
 
     pub fn init(&mut self) {
@@ -144,12 +148,13 @@ impl Game {
             .iter_mut()
             .for_each(|enemy: &mut Enemy| enemy.update(&self, &since_last_time));
 
-        self.hud.set(self.score(), self.player.borrow().health());
+        self.hud.borrow_mut().update(self, &since_last_time);
     }
 
     fn draw(&mut self) {
         self.ui.clear();
         let mut buffer: Vec<u8> = Vec::new();
+
         self.walls.iter().for_each(|wall| wall.draw(&mut buffer));
         self.player.borrow().draw(&mut buffer);
         self.enemies
@@ -157,7 +162,8 @@ impl Game {
             .iter()
             .for_each(|enemy| enemy.draw(&mut buffer));
         self.collectible.borrow().draw(&mut buffer);
-        self.hud.draw(&mut buffer);
+        self.hud.borrow().draw(&mut buffer);
+
         self.stdout
             .write_all(&buffer)
             .expect("failed to write to stdout");
@@ -182,7 +188,7 @@ impl Game {
         }
         self.ui.restore();
         print!("\nGame over!");
-        println!("  Score: {}", self.score());
+        println!("  Score: {}", self.player_score());
     }
 }
 
