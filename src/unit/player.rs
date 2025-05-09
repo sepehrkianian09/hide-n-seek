@@ -99,9 +99,9 @@ impl Player {
 }
 
 impl UpdatableByTimeFrame for Player {
-    fn update(&mut self, game: &Game, since_last_time: &Duration) {
+    fn update(&mut self, game: &Game) {
         // move player if not colliding with a wall
-        let player_next_position = self.forward_position(since_last_time);
+        let player_next_position = self.forward_position(&game.update_interval_millis);
         if !game.do_walls_collide(player_next_position.round().to_u16()) {
             self.position = player_next_position;
         }

@@ -40,9 +40,9 @@ impl Position<f64> for Enemy {
 }
 
 impl UpdatableByTimeFrame for Enemy {
-    fn update(&mut self, game: &Game, since_last_time: &Duration) {
+    fn update(&mut self, game: &Game) {
         // move enemies
-        self.move_towards_player(game.player_position(), &since_last_time);
+        self.move_towards_player(game.player_position(), &game.update_interval_millis);
 
         // reduce player health for each enemy collision
         if self.position().round() == game.player_position().round() {

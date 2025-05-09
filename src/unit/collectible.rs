@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use serde::{Deserialize, Serialize};
 
 use crate::{game::Game, point::Point2d, traits::{Position, UpdatableByTimeFrame}};
@@ -30,8 +28,7 @@ impl Collectible {
 }
 
 impl UpdatableByTimeFrame for Collectible {
-    fn update(&mut self, game: &Game, since_last_time: &Duration) {
-        let _ = since_last_time;
+    fn update(&mut self, game: &Game) {
         // increase score if player collides with collectible
         if game.player_position().round().to_u16() == self.position() {
             game.increase_player_score();

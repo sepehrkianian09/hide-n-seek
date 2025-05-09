@@ -44,7 +44,7 @@ pub struct Game {
     #[serde(skip, default = "rng_new")]
     #[derivative(Debug = "ignore")]
     rng: RefCell<Box<dyn RngCore>>,
-    update_interval_millis: Duration,
+    pub update_interval_millis: Box<Duration>,
     hud: RefCell<Hud>,
 }
 
@@ -139,21 +139,21 @@ impl Game {
         );
     }
 
-    fn update(&mut self, since_last_time: Duration) {
+    fn update(&mut self) {
         self.player_movement
             .borrow_mut()
-            .update(self, &since_last_time);
+            .update(self);
 
         self.collectible
             .borrow_mut()
-            .update(&self, &since_last_time);
+            .update(&self);
 
         self.enemies
             .borrow_mut()
             .iter_mut()
-            .for_each(|enemy: &mut Enemy| enemy.update(&self, &since_last_time));
+            .for_each(|enemy: &mut Enemy| enemy.update(&self));
 
-        self.hud.borrow_mut().update(self, &since_last_time);
+        self.hud.borrow_mut().update(self);
     }
 
     fn draw(&mut self) {
@@ -188,7 +188,7 @@ impl Game {
                 }
             }
 
-            self.update(self.update_interval_millis.clone());
+            self.update();
             self.draw();
         }
         self.ui.restore();

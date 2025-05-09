@@ -32,7 +32,7 @@ fn test_game_after_updates() -> Result<(), Box<dyn Error>> {
 
     game.init();
     for _ in 0..5 {
-        game.update(std::time::Duration::from_millis(280));
+        game.update();
     }
 
     let json_io = JsonIo::new("src/game/after_update_game.json");

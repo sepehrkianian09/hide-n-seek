@@ -4,7 +4,7 @@ use rand::{
     prelude::Distribution,
     Rng, RngCore,
 };
-use std::{ops::Range, time::Duration};
+use std::ops::Range;
 
 use crate::{game::Game, point::Point2d};
 
@@ -23,5 +23,5 @@ pub trait Position<T: NumAssign + Copy> {
 
 
 pub trait UpdatableByTimeFrame {
-    fn update(&mut self, game: &Game, since_last_time: &Duration);
+    fn update(&mut self, game: &Game);
 }

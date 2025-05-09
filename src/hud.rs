@@ -40,8 +40,7 @@ impl Position<u16> for Hud {
 }
 
 impl UpdatableByTimeFrame for Hud {
-    fn update(&mut self, game: &crate::game::Game, since_last_time: &std::time::Duration) {
-        let _ = since_last_time;
+    fn update(&mut self, game: &crate::game::Game) {
         self.set(game.player_score(), game.player_health());
     }
 }
