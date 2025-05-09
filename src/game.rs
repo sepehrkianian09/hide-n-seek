@@ -91,21 +91,13 @@ impl Game {
         // add random walls
         for _ in 0..self.n_random_walls {
             let mut wall = Wall::default();
-            wall.set_rand_position(
-                &mut self.rng.borrow_mut(),
-                1..self.width - 1,
-                1..self.height - 1,
-            );
+            self.randomize_position_u16(&mut wall);
             self.walls.push(wall);
         }
 
         // randomize enemy positions
         self.enemies.borrow_mut().iter_mut().for_each(|enemy| {
-            enemy.set_rand_position(
-                &mut self.rng.borrow_mut(),
-                1.0..(self.width - 1).into(),
-                1.0..(self.height - 1).into(),
-            );
+            self.randomize_position_f64(enemy);
         });
 
         // randomize collectible position
@@ -132,6 +124,14 @@ impl Game {
         );
     }
 
+    pub fn randomize_position_f64(&self, a_position: &mut dyn Position<f64>) {
+        a_position.set_rand_position(
+            &mut self.rng.borrow_mut(),
+            1.0..(self.width - 1).into(),
+            1.0..(self.height - 1).into(),
+        );
+    }
+
     fn update(&mut self, since_last_time: Duration) {
         self.player.borrow_mut().update(self, &since_last_time);
 
@@ -139,7 +139,8 @@ impl Game {
             .borrow_mut()
             .update(&self, &since_last_time);
 
-        self.enemies.borrow_mut()
+        self.enemies
+            .borrow_mut()
             .iter_mut()
             .for_each(|enemy: &mut Enemy| enemy.update(&self, &since_last_time));
 
@@ -151,7 +152,8 @@ impl Game {
         let mut buffer: Vec<u8> = Vec::new();
         self.walls.iter().for_each(|wall| wall.draw(&mut buffer));
         self.player.borrow().draw(&mut buffer);
-        self.enemies.borrow()
+        self.enemies
+            .borrow()
             .iter()
             .for_each(|enemy| enemy.draw(&mut buffer));
         self.collectible.borrow().draw(&mut buffer);
