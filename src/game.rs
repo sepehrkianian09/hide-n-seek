@@ -35,7 +35,7 @@ pub struct Game {
     width: u16,
     #[serde(skip, default = "stdout")]
     stdout: Stdout,
-    enemies: Vec<Enemy>,
+    enemies: RefCell<Vec<Enemy>>,
     n_random_walls: u16,
     walls: Vec<Wall>,
     collectible: RefCell<Collectible>,
@@ -91,12 +91,16 @@ impl Game {
         // add random walls
         for _ in 0..self.n_random_walls {
             let mut wall = Wall::default();
-            wall.set_rand_position(&mut self.rng.borrow_mut(), 1..self.width - 1, 1..self.height - 1);
+            wall.set_rand_position(
+                &mut self.rng.borrow_mut(),
+                1..self.width - 1,
+                1..self.height - 1,
+            );
             self.walls.push(wall);
         }
 
         // randomize enemy positions
-        self.enemies.iter_mut().for_each(|enemy| {
+        self.enemies.borrow_mut().iter_mut().for_each(|enemy| {
             enemy.set_rand_position(
                 &mut self.rng.borrow_mut(),
                 1.0..(self.width - 1).into(),
@@ -126,8 +130,16 @@ impl Game {
         self.player.borrow().position()
     }
 
+    pub fn damage_player(&self, damage: u8) {
+        self.player.borrow_mut().take_damage(damage);
+    }
+
     pub fn randomize_position_u16(&self, a_position: &mut dyn Position<u16>) {
-        a_position.set_rand_position(&mut self.rng.borrow_mut(), 1..self.width - 1, 1..self.height - 1);
+        a_position.set_rand_position(
+            &mut self.rng.borrow_mut(),
+            1..self.width - 1,
+            1..self.height - 1,
+        );
     }
 
     fn update(&mut self, since_last_time: Duration) {
@@ -137,17 +149,9 @@ impl Game {
             .borrow_mut()
             .update(&self, &since_last_time);
 
-        // move enemies
-        self.enemies.iter_mut().for_each(|enemy: &mut Enemy| {
-            enemy.move_towards_player(self.player.borrow().position(), &since_last_time)
-        });
-
-        // reduce player health for each enemy collision
-        self.enemies.iter_mut().for_each(|enemy| {
-            if enemy.position().round() == self.player.borrow().position().round() {
-                self.player.borrow_mut().take_damage(1);
-            }
-        });
+        self.enemies.borrow_mut()
+            .iter_mut()
+            .for_each(|enemy: &mut Enemy| enemy.update(&self, &since_last_time));
 
         self.hud.set(self.score(), self.player.borrow().health());
     }
@@ -157,7 +161,7 @@ impl Game {
         let mut buffer: Vec<u8> = Vec::new();
         self.walls.iter().for_each(|wall| wall.draw(&mut buffer));
         self.player.borrow().draw(&mut buffer);
-        self.enemies
+        self.enemies.borrow()
             .iter()
             .for_each(|enemy| enemy.draw(&mut buffer));
         self.collectible.borrow().draw(&mut buffer);

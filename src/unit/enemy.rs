@@ -1,5 +1,6 @@
 use std::time::Duration;
 
+use crate::game::Game;
 use crate::unit::Player;
 use crate::{point::Point2d, traits::Position};
 
@@ -21,6 +22,16 @@ impl Enemy {
         let direction = player_position.round() - self.position().round();
 
         self.position += direction.normalize() * (self.speed * since_last_time.as_secs_f64());
+    }
+
+    pub fn update(&mut self, game: &Game, since_last_time: &Duration) {
+        // move enemies
+        self.move_towards_player(game.player_position(), &since_last_time);
+
+        // reduce player health for each enemy collision
+        if self.position().round() == game.player_position().round() {
+            game.damage_player(1);
+        }
     }
 }
 

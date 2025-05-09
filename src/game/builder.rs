@@ -88,7 +88,7 @@ impl GameBuilder {
             width: self.width,
             n_random_walls: self.n_random_walls,
             update_interval_millis: self.update_interval,
-            enemies: self.enemies,
+            enemies: self.enemies.into(),
             walls: self.walls,
             collectible: Collectible::default().into(),
             player: self.player_builder.build().into(),
