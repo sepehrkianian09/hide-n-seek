@@ -3,8 +3,6 @@ use serde::{Deserialize, Serialize};
 use crate::traits::UpdatableByTimeFrame;
 use crate::{point::Point2d, traits::Position};
 
-use crate::unit::Player;
-
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Hud {
     score: u32,

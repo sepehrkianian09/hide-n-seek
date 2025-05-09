@@ -3,15 +3,13 @@ mod tests;
 
 use std::{
     cell::RefCell,
-    fmt::Debug,
     io::{stdout, Stdout, Write},
     time::Duration,
 };
 
 use builder::GameBuilder;
 use derivative::Derivative;
-use num::traits::NumAssign;
-use rand::{rngs::ThreadRng, Rng, RngCore};
+use rand::RngCore;
 
 use serde::{Deserialize, Serialize};
 
@@ -21,7 +19,7 @@ use crate::{
     point::Point2d,
     traits::*,
     ui::{draw::*, UI},
-    unit::{Collectible, Enemy, Player, PlayerBuilder, Wall},
+    unit::{Collectible, Enemy, Player, Wall},
 };
 
 fn rng_new() -> RefCell<Box<dyn RngCore>> {
