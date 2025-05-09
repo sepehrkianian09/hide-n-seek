@@ -1,32 +1,36 @@
 use std::{
     f64::consts::PI,
-    fmt::{Display, Formatter}, time::Duration,
+    fmt::{Display, Formatter},
+    time::Duration,
 };
 
 use serde::{Deserialize, Serialize};
 
-use crate::{game::Game, point::Point2d, traits::{Position, UpdatableByTimeFrame}};
+use crate::{
+    game::Game,
+    point::Point2d,
+    traits::{Position, UpdatableByTimeFrame},
+};
 
 pub mod builder;
 pub use builder::PlayerBuilder;
+
+pub mod state;
+pub use state::PlayerState;
 
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct Player {
     position: Point2d<f64>,
     direction: Point2d<f64>,
     speed: f64,
-    health: u8,
-    score: u32,
 }
 
 impl Player {
-    pub fn new(position: Point2d<f64>, direction: Point2d<f64>, speed: f64, health: u8, score: u32,) -> Self {
+    pub fn new(position: Point2d<f64>, direction: Point2d<f64>, speed: f64) -> Self {
         Self {
             position,
             direction,
             speed,
-            health,
-            score,
         }
     }
 
@@ -42,26 +46,6 @@ impl Player {
 
     pub fn move_forward(&mut self, since_last_time: &Duration) {
         self.position += self.direction * (self.speed * since_last_time.as_secs_f64());
-    }
-
-    pub fn is_alive(&self) -> bool {
-        self.health > 0
-    }
-
-    pub fn decrease_health(&mut self) {
-        self.health = self.health.saturating_sub(1);
-    }
-
-    pub fn health(&self) -> u8 {
-        self.health
-    }
-
-    pub fn score(&self) -> u32 {
-        self.score
-    }
-
-    pub fn increase_score(&mut self) {
-        self.score += 1;
     }
 
     pub fn speed(&self) -> f64 {
@@ -126,8 +110,7 @@ impl UpdatableByTimeFrame for Player {
     fn update(&mut self, game: &Game, since_last_time: &Duration) {
         // move player if not colliding with a wall
         let player_next_position = self.forward_position(since_last_time);
-        if !game.do_walls_collide(player_next_position)
-        {
+        if !game.do_walls_collide(player_next_position) {
             self.move_forward(since_last_time);
         }
     }

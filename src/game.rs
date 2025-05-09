@@ -19,7 +19,7 @@ use crate::{
     point::Point2d,
     traits::*,
     ui::{draw::*, UI},
-    unit::{Collectible, Enemy, Player, Wall},
+    unit::{Collectible, Enemy, Player, PlayerState, Wall},
 };
 
 fn rng_new() -> RefCell<Box<dyn RngCore>> {
@@ -37,7 +37,8 @@ pub struct Game {
     n_random_walls: u16,
     walls: Vec<Wall>,
     collectible: RefCell<Collectible>,
-    player: RefCell<Player>,
+    player_movement: RefCell<Player>,
+    player_state: RefCell<PlayerState>,
     #[serde(skip, default = "crate::ui::UI::new")]
     ui: UI,
     #[serde(skip, default = "rng_new")]
@@ -55,7 +56,7 @@ impl PartialEq for Game {
             && self.n_random_walls == other.n_random_walls
             && self.walls == other.walls
             && self.collectible == other.collectible
-            && self.player == other.player
+            && self.player_movement == other.player_movement
             && self.update_interval_millis == other.update_interval_millis
     }
 }
@@ -70,23 +71,23 @@ impl Game {
     }
 
     pub fn player_score(&self) -> u32 {
-        self.player.borrow().score()
+        self.player_state.borrow().score()
     }
 
     pub fn increase_player_score(&self) {
-        self.player.borrow_mut().increase_score();
+        self.player_state.borrow_mut().increase_score();
     }
-    
+
     pub fn player_health(&self) -> u8 {
-        self.player.borrow().health()
+        self.player_state.borrow().health()
     }
 
     pub fn player_position(&self) -> Point2d<f64> {
-        self.player.borrow().position()
+        self.player_movement.borrow().position()
     }
 
     pub fn decrease_player_health(&self) {
-        self.player.borrow_mut().decrease_health();
+        self.player_state.borrow_mut().decrease_health();
     }
 
     pub fn init(&mut self) {
@@ -139,7 +140,9 @@ impl Game {
     }
 
     fn update(&mut self, since_last_time: Duration) {
-        self.player.borrow_mut().update(self, &since_last_time);
+        self.player_movement
+            .borrow_mut()
+            .update(self, &since_last_time);
 
         self.collectible
             .borrow_mut()
@@ -158,7 +161,7 @@ impl Game {
         let mut buffer: Vec<u8> = Vec::new();
 
         self.walls.iter().for_each(|wall| wall.draw(&mut buffer));
-        self.player.borrow().draw(&mut buffer);
+        self.player_movement.borrow().draw(&mut buffer);
         self.enemies
             .borrow()
             .iter()
@@ -175,13 +178,13 @@ impl Game {
     pub fn run(&mut self) {
         self.init();
         let mut quit = false;
-        while self.player.borrow().is_alive() && !quit {
+        while self.player_state.borrow().is_alive() && !quit {
             // poll for key events for the duration of the update interval
             let now = std::time::Instant::now();
             while let Some(time_remaining) = self.update_interval_millis.checked_sub(now.elapsed())
             {
                 if let Some(key) = input::poll_key_event(time_remaining) {
-                    input::handle_key_event(key, &mut self.player.borrow_mut(), &mut quit);
+                    input::handle_key_event(key, &mut self.player_movement.borrow_mut(), &mut quit);
                 }
             }
 

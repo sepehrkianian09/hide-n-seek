@@ -74,7 +74,7 @@
       "y": 0
     }
   },
-  "player": {
+  "player_movement": {
     "position": {
       "x": 1.0,
       "y": 1.0
@@ -83,7 +83,9 @@
       "x": 1.0,
       "y": 0.0
     },
-    "speed": 0.5,
+    "speed": 0.5
+  },
+  "player_state": {
     "health": 10,
     "score": 0
   },

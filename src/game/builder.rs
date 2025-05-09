@@ -2,10 +2,14 @@ use std::{io::stdout, time::Duration};
 
 use rand::RngCore;
 
-use crate::{hud::Hud, point::Point2d, ui::UI, unit::{Collectible, Enemy, PlayerBuilder, Wall}};
+use crate::{
+    hud::Hud,
+    point::Point2d,
+    ui::UI,
+    unit::{Collectible, Enemy, PlayerBuilder, PlayerState, Wall},
+};
 
 use super::Game;
-
 
 pub struct GameBuilder {
     height: u16,
@@ -13,6 +17,7 @@ pub struct GameBuilder {
     n_random_walls: u16,
     update_interval: Duration,
     player_builder: PlayerBuilder,
+    player_health: u8,
     enemies: Vec<Enemy>,
     walls: Vec<Wall>,
     rng: Box<dyn RngCore>,
@@ -25,6 +30,7 @@ impl GameBuilder {
             height: 48,
             width: 80,
             player_builder: PlayerBuilder::new(),
+            player_health: 10,
             n_random_walls: 0,
             update_interval: Duration::from_millis(50),
             enemies: vec![
@@ -48,7 +54,7 @@ impl GameBuilder {
     }
 
     pub fn player_starting_health(mut self, health: u8) -> Self {
-        self.player_builder = self.player_builder.health(health);
+        self.player_health = health;
         self
     }
 
@@ -77,7 +83,7 @@ impl GameBuilder {
         self
     }
 
-    pub fn rng(mut self, rng: Box<dyn RngCore>,) -> Self {
+    pub fn rng(mut self, rng: Box<dyn RngCore>) -> Self {
         self.rng = rng;
         self
     }
@@ -91,7 +97,8 @@ impl GameBuilder {
             enemies: self.enemies.into(),
             walls: self.walls,
             collectible: Collectible::default().into(),
-            player: self.player_builder.build().into(),
+            player_movement: self.player_builder.build().into(),
+            player_state: PlayerState::new(self.player_health, 0).into(),
             ui: UI::new(),
             rng: self.rng.into(),
             stdout: stdout(),

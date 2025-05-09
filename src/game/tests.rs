@@ -27,7 +27,7 @@ fn test_game_after_updates() -> Result<(), Box<dyn Error>> {
         .build();
     
     let json_io = JsonIo::new("src/game/initial_game.json");
-    json_io.write_json(&game)?;
+    // json_io.write_json(&game)?;
     assert_eq!(game, json_io.read_json()?);
 
     game.init();
@@ -36,7 +36,7 @@ fn test_game_after_updates() -> Result<(), Box<dyn Error>> {
     }
 
     let json_io = JsonIo::new("src/game/after_update_game.json");
-    json_io.write_json(&game)?;
+    // json_io.write_json(&game)?;
     let read_game = json_io.read_json()?;
     assert_eq!(game, read_game);
 
