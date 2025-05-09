@@ -35,7 +35,6 @@ pub struct Game {
     width: u16,
     #[serde(skip, default = "stdout")]
     stdout: Stdout,
-    score: u32,
     enemies: Vec<Enemy>,
     n_random_walls: u16,
     walls: Vec<Wall>,
@@ -70,6 +69,10 @@ impl Game {
 
     pub fn builder() -> GameBuilder {
         GameBuilder::new()
+    }
+
+    pub fn score(&self) -> u32 {
+        self.collectible.borrow().score()
     }
 
     pub fn init(&mut self) {
@@ -146,7 +149,7 @@ impl Game {
             }
         });
 
-        self.hud.set(self.score, self.player.borrow().health());
+        self.hud.set(self.score(), self.player.borrow().health());
     }
 
     fn draw(&mut self) {
@@ -183,7 +186,7 @@ impl Game {
         }
         self.ui.restore();
         print!("\nGame over!");
-        println!("  Score: {}", self.score);
+        println!("  Score: {}", self.score());
     }
 }
 

@@ -21,6 +21,10 @@ impl Position<u16> for Collectible {
 }
 
 impl Collectible {
+    pub fn score(&self) -> u32 {
+        self.score
+    }
+
     pub fn update(&mut self, game: &Game, since_last_time: &Duration) {
         let _ = since_last_time;
         // increase score if player collides with collectible

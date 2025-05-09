@@ -95,7 +95,6 @@ impl GameBuilder {
             ui: UI::new(),
             rng: self.rng.into(),
             stdout: stdout(),
-            score: 0,
             hud: Hud::new(Point2d::new(self.width / 2 - 10, self.height + 2)),
         }
     }
