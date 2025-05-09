@@ -7,6 +7,7 @@ pub struct PlayerBuilder {
     direction: Point2d<f64>,
     speed: f64,
     health: u8,
+    score: u32,
 }
 
 #[allow(clippy::new_without_default)]
@@ -17,6 +18,7 @@ impl PlayerBuilder {
             direction: Point2d::new(1.0, 0.0),
             speed: 0.0,
             health: 10,
+            score: 0,
         }
     }
 
@@ -40,12 +42,18 @@ impl PlayerBuilder {
         self
     }
 
+    pub fn score(mut self, score: u32) -> Self {
+        self.score = score;
+        self
+    }
+
     pub fn build(self) -> Player {
         Player {
             position: self.position,
             direction: self.direction,
             speed: self.speed,
             health: self.health,
+            score: self.score,
         }
     }
 }

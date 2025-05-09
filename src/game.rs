@@ -72,11 +72,23 @@ impl Game {
     }
 
     pub fn player_score(&self) -> u32 {
-        self.collectible.borrow().score()
+        self.player.borrow().score()
+    }
+
+    pub fn increase_player_score(&self) {
+        self.player.borrow_mut().increase_score();
     }
     
     pub fn player_health(&self) -> u8 {
         self.player.borrow().health()
+    }
+
+    pub fn player_position(&self) -> Point2d<f64> {
+        self.player.borrow().position()
+    }
+
+    pub fn decrease_player_health(&self) {
+        self.player.borrow_mut().decrease_health();
     }
 
     pub fn init(&mut self) {
@@ -110,14 +122,6 @@ impl Game {
 
     pub fn do_walls_collide(&self, position: Point2d<u16>) -> bool {
         self.walls.iter().any(|wall| wall.position() == position)
-    }
-
-    pub fn player_position(&self) -> Point2d<f64> {
-        self.player.borrow().position()
-    }
-
-    pub fn damage_player(&self, damage: u8) {
-        self.player.borrow_mut().take_damage(damage);
     }
 
     pub fn randomize_position_u16(&self, a_position: &mut dyn Position<u16>) {

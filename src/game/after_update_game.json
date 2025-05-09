@@ -1693,8 +1693,7 @@
     "position": {
       "x": 39,
       "y": 33
-    },
-    "score": 0
+    }
   },
   "player": {
     "position": {
@@ -1706,7 +1705,8 @@
       "y": 0.0
     },
     "speed": 0.5,
-    "health": 10
+    "health": 10,
+    "score": 0
   },
   "update_interval_millis": {
     "secs": 0,

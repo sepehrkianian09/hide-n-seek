@@ -7,7 +7,6 @@ use crate::{game::Game, point::Point2d, traits::{Position, UpdatableByTimeFrame}
 #[derive(Debug, Default, Serialize, Deserialize, PartialEq)]
 pub struct Collectible {
     position: Point2d<u16>,
-    score: u32,
 }
 
 impl Position<u16> for Collectible {
@@ -21,10 +20,6 @@ impl Position<u16> for Collectible {
 }
 
 impl Collectible {
-    pub fn score(&self) -> u32 {
-        self.score
-    }
-
     pub fn randomize_position(&mut self, game: &Game) {
         game.randomize_position_u16(self);
 
@@ -39,7 +34,7 @@ impl UpdatableByTimeFrame for Collectible {
         let _ = since_last_time;
         // increase score if player collides with collectible
         if game.player_position().round().to_u16() == self.position() {
-            self.score += 1;
+            game.increase_player_score();
             
             // move collectible to a new random position
             self.randomize_position(game);

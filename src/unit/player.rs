@@ -16,15 +16,17 @@ pub struct Player {
     direction: Point2d<f64>,
     speed: f64,
     health: u8,
+    score: u32,
 }
 
 impl Player {
-    pub fn new(position: Point2d<f64>, direction: Point2d<f64>, speed: f64, health: u8) -> Self {
+    pub fn new(position: Point2d<f64>, direction: Point2d<f64>, speed: f64, health: u8, score: u32,) -> Self {
         Self {
             position,
             direction,
             speed,
             health,
+            score,
         }
     }
 
@@ -46,12 +48,20 @@ impl Player {
         self.health > 0
     }
 
-    pub fn take_damage(&mut self, damage: u8) {
-        self.health = self.health.saturating_sub(damage);
+    pub fn decrease_health(&mut self) {
+        self.health = self.health.saturating_sub(1);
     }
 
     pub fn health(&self) -> u8 {
         self.health
+    }
+
+    pub fn score(&self) -> u32 {
+        self.score
+    }
+
+    pub fn increase_score(&mut self) {
+        self.score += 1;
     }
 
     pub fn speed(&self) -> f64 {
