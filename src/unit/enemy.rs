@@ -46,7 +46,7 @@ impl UpdatableByTimeFrame for Enemy {
 
         // reduce player health for each enemy collision
         if self.position().round() == game.player_position().round() {
-            game.decrease_player_health();
+            game.player_state().borrow_mut().decrease_health();
         }
     }
 }

@@ -31,7 +31,7 @@ impl UpdatableByTimeFrame for Collectible {
     fn update(&mut self, game: &Game) {
         // increase score if player collides with collectible
         if game.player_position().round().to_u16() == self.position() {
-            game.increase_player_score();
+            game.player_state().borrow_mut().increase_score();
             
             // move collectible to a new random position
             self.randomize_position(game);

@@ -41,6 +41,7 @@ impl Position<u16> for Hud {
 
 impl UpdatableByTimeFrame for Hud {
     fn update(&mut self, game: &crate::game::Game) {
-        self.set(game.player_score(), game.player_health());
+        let player_state = game.player_state().borrow();
+        self.set(player_state.score(), player_state.health());
     }
 }

@@ -70,24 +70,12 @@ impl Game {
         GameBuilder::new()
     }
 
-    pub fn player_score(&self) -> u32 {
-        self.player_state.borrow().score()
-    }
-
-    pub fn increase_player_score(&self) {
-        self.player_state.borrow_mut().increase_score();
-    }
-
-    pub fn player_health(&self) -> u8 {
-        self.player_state.borrow().health()
+    pub fn player_state(&self) -> &RefCell<PlayerState> {
+        &self.player_state
     }
 
     pub fn player_position(&self) -> Point2d<f64> {
         self.player_movement.borrow().position()
-    }
-
-    pub fn decrease_player_health(&self) {
-        self.player_state.borrow_mut().decrease_health();
     }
 
     pub fn init(&mut self) {
@@ -140,13 +128,9 @@ impl Game {
     }
 
     fn update(&mut self) {
-        self.player_movement
-            .borrow_mut()
-            .update(self);
+        self.player_movement.borrow_mut().update(self);
 
-        self.collectible
-            .borrow_mut()
-            .update(&self);
+        self.collectible.borrow_mut().update(&self);
 
         self.enemies
             .borrow_mut()
@@ -193,7 +177,7 @@ impl Game {
         }
         self.ui.restore();
         print!("\nGame over!");
-        println!("  Score: {}", self.player_score());
+        println!("  Score: {}", self.player_state().borrow().score());
     }
 }
 
