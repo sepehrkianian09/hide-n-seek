@@ -4,9 +4,9 @@ use rand::{
     prelude::Distribution,
     Rng, RngCore,
 };
-use std::ops::Range;
+use std::{ops::Range, time::Duration};
 
-use crate::point::Point2d;
+use crate::{game::Game, point::Point2d};
 
 pub trait Position<T: NumAssign + Copy> {
     fn position(&self) -> Point2d<T>;
@@ -19,4 +19,9 @@ pub trait Position<T: NumAssign + Copy> {
         let new_position = Point2d::new(rng.gen_range(x_range), rng.gen_range(y_range));
         self.set_position(new_position);
     }
+}
+
+
+pub trait UpdatableByTimeFrame {
+    fn update(&mut self, game: &Game, since_last_time: &Duration);
 }

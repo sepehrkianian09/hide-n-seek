@@ -5,7 +5,7 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 
-use crate::{game::Game, point::Point2d, traits::Position};
+use crate::{game::Game, point::Point2d, traits::{Position, UpdatableByTimeFrame}};
 
 pub mod builder;
 pub use builder::PlayerBuilder;
@@ -30,15 +30,6 @@ impl Player {
 
     pub fn builder() -> PlayerBuilder {
         PlayerBuilder::new()
-    }
-
-    pub fn update(&mut self, game: &Game, since_last_time: &Duration) {
-        // move player if not colliding with a wall
-        let player_next_position = self.forward_position(since_last_time);
-        if !game.do_walls_collide(player_next_position)
-        {
-            self.move_forward(since_last_time);
-        }
     }
 
     pub fn forward_position(&self, since_last_time: &Duration) -> Point2d<u16> {
@@ -118,5 +109,16 @@ impl Display for Player {
             }
         };
         write!(f, "{}", icon.dark_blue())
+    }
+}
+
+impl UpdatableByTimeFrame for Player {
+    fn update(&mut self, game: &Game, since_last_time: &Duration) {
+        // move player if not colliding with a wall
+        let player_next_position = self.forward_position(since_last_time);
+        if !game.do_walls_collide(player_next_position)
+        {
+            self.move_forward(since_last_time);
+        }
     }
 }
