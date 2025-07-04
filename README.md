@@ -14,3 +14,9 @@ The snapshot of the game is shown below. The game has four entities:
 ![Game Snapshot](assets/game-snapshot.png)
 
 Moreover, the objective of the game is to collect as much score as you can before you lose all your health. When you reach a heart, your score increases, the heart vanishes, and another random heart is created in the game.
+
+## Player Movement
+
+You can control the direction of the player using the right and left arrow keyboard buttons. when pressing the right arrow, the direction rotates 45 degrees clockwise. Pressing the left arrow does it in reverse.
+
+Moreover, the speed of the player does not change.
